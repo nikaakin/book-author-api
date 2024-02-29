@@ -12,9 +12,22 @@ class BookController extends Controller
 {
     public function index(): JsonResponse
     {
+        $query = Book::query();
+
+        if(request()->input('name')) {
+            $query = Book::searchName(request()->input('name'), $query);
+        }
+
+        if(request()->input('author')) {
+            $query = Book::searchAuthor(request()->input('author'), $query);
+        }
+
+        $books = $query->get();
+
         return response()->json([
-            'books' => Book::all(),
+            $books,
         ], 200);
+
     }
 
     public function show(Book $book): JsonResponse
