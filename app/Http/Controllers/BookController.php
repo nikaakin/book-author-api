@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\books\StoreRequest;
+use App\Http\Requests\books\UpdateRequest;
 use App\Models\Author;
 use App\Models\Book;
 use Illuminate\Http\JsonResponse;
-
-use function PHPSTORM_META\map;
 
 class BookController extends Controller
 {
@@ -36,6 +35,23 @@ class BookController extends Controller
         }
 
         $book->authors()->attach(collect($authors)->map((fn ($author) => $author->id)));
+
+        return response()->json([
+            $book,
+            $authors
+        ], 201);
+    }
+
+    public function update(UpdateRequest $request, Book $book): JsonResponse
+    {
+        $data = $request->validated();
+
+        $authors = [];
+        foreach($data['authors'] as $key => $value) {
+            array_push($authors, Author::firstOrCreate(['name' => $value]));
+        }
+
+        $book->authors()->sync(collect($authors)->map((fn ($author) => $author->id)));
 
         return response()->json([
             $book,
