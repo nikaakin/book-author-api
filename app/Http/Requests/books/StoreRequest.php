@@ -17,4 +17,5 @@ class StoreRequest extends FormRequest
             'status' => 'in:free,busy'
         ];
     }
+
 }

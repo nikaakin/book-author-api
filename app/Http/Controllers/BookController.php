@@ -51,7 +51,7 @@ class BookController extends Controller
 
         return response()->json([
             $book,
-            $authors
+            $authors,
         ], 201);
     }
 
@@ -59,16 +59,18 @@ class BookController extends Controller
     {
         $data = $request->validated();
 
-        $authors = [];
-        foreach($data['authors'] as $key => $value) {
-            array_push($authors, Author::firstOrCreate(['name' => $value]));
+        if(isset($data['authors'])) {
+            $authors = [];
+            foreach($data['authors'] as $key => $value) {
+                array_push($authors, Author::firstOrCreate(['name' => $value]));
+            }
+            $book->authors()->sync(collect($authors)->map((fn ($author) => $author->id)));
         }
 
-        $book->authors()->sync(collect($authors)->map((fn ($author) => $author->id)));
+        $book->update($data);
 
         return response()->json([
             $book,
-            $authors
         ], 201);
     }
 
